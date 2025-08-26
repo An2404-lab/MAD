@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractal Notes - Ghi chú ứng dụng Fractal</title>
+    <link rel="stylesheet" href="https://c...content-available-to-author-only...e.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --dark: #1d3557;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #4cc9f0;
+            --warning: #f77f00;
+            --danger: #d62828;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7ff;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .search-container {
+            display: flex;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            background: var(--secondary);
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .note-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .note-image {
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .note-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .note-card:hover .note-image img {
+            transform: scale(1.05);
+        }
+
+        .note-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(67, 97, 238, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .note-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .note-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .note-title:hover {
+            color: var(--primary);
+        }
+
+        .note-description {
+            color: var(--gray);
+            margin-bottom: 15px;
+            flex: 1;
+        }
+
+        .note-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .voice-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .voice-btn:hover {
+            background: #3ba7c7;
+            transform: translateY(-2px);
+        }
+
+        .voice-btn i {
+            font-size: 1rem;
+        }
+
+        .note-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: gap 0.3s;
+        }
+
+        .note-link:hover {
+            gap: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 2000;
+        }
+
+        @media (max-width: 768px) {
+            .notes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-shapes"></i> Fractal Notes</h1>
+            <p>Trung tâm ghi chú và truy cập các ứng dụng Fractal</p>
+        </header>
+
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Tìm kiếm ứng dụng..." id="searchInput">
+            <button class="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+
+        <div class="notes-grid" id="notesGrid">
+            <!-- Các ghi chú sẽ được tạo ra bởi JavaScript -->
+        </div>
+    </div>
+
+    <!-- Modal cho phát âm thanh -->
+    <div class="modal" id="audioModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h3>Phát mô tả âm thanh</h3>
+            <div class="audio-player">
+                <audio controls id="audioPlayer">
+                    <source src="" type="audio/mpeg">
+                    Trình duyệt của bạn không hỗ trợ phát âm thanh.
+                </audio>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast thông báo -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Dữ liệu các ứng dụng
+        const apps = [
+            {
+                name: "1. Mệnh đề",
+                url: "https://an2404-lab.github.io/MAD/menh_de_MAD",
+                image: "https://www.voer.edu.vn/post-file/2cab0bb0/37877.png",
+                description: " Mệnh đề toán học là mệnh đề khẳng định một sự kiện trong toán học",
+                audio: ""
+            }
+        ];
+
+        // Tạo các ghi chú
+        function renderNotes(appsToRender = apps) {
+            const notesGrid = document.getElementById('notesGrid');
+            notesGrid.innerHTML = '';
+            
+            appsToRender.forEach(app => {
+                const noteCard = document.createElement('div');
+                noteCard.className = 'note-card';
+                
+                noteCard.innerHTML = `
+                    <div class="note-image" onclick="window.open('${app.url}', '_blank')">
+                        <img src="${app.image}" alt="${app.name}">
+                        <div class="note-badge">Fractal</div>
+                    </div>
+                    <div class="note-content">
+                        <h3 class="note-title" onclick="window.open('${app.url}', '_blank')">${app.name}</h3>
+                        <p class="note-description">${app.description}</p>
+                        <div class="note-footer">
+                            <button class="voice-btn" data-audio="${app.audio}">
+                                <i class="fas fa-play"></i> Nghe mô tả
+                            </button>
+                            <a href="${app.url}" target="_blank" class="note-link">
+                                Mở ứng dụng <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                notesGrid.appendChild(noteCard);
+            });
+            
+            // Thêm sự kiện cho các nút voice
+            document.querySelectorAll('.voice-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const audioSrc = this.getAttribute('data-audio');
+                    openAudioModal(audioSrc);
+                });
+            });
+        }
+
+        // Mở modal phát âm thanh
+        function openAudioModal(audioSrc) {
+            const modal = document.getElementById('audioModal');
+            const audioPlayer = document.getElementById('audioPlayer');
+            
+            audioPlayer.src = audioSrc;
+            modal.style.display = 'flex';
+            audioPlayer.play();
+        }
+
+        // Đóng modal
+        document.getElementById('closeModal').addEventListener('click', function() {
+            const modal = document.getElementById('audioModal');
+            const audioPlayer = document.getElementById('audioPlayer');
+            
+            audioPlayer.pause();
+            modal.style.display = 'none';
+        });
+
+        // Tìm kiếm ứng dụng
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filteredApps = apps.filter(app => 
+                app.name.toLowerCase().includes(searchTerm) || 
+                app.description.toLowerCase().includes(searchTerm)
+            );
+            
+            renderNotes(filteredApps);
+            
+            if (filteredApps.length === 0) {
+                document.getElementById('notesGrid').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                        <i class="fas fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                        <h3>Không tìm thấy ứng dụng phù hợp</h3>
+                        <p>Thử tìm kiếm với từ khóa khác</p>
+                    </div>
+                `;
+            }
+        });
+
+        // Hiển thị toast thông báo
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Khởi tạo trang
+        document.addEventListener('DOMContentLoaded', function() {
+            renderNotes();
+            showToast('Chào mừng bạn đến với Fractal Notes!');
+        });
+
+        // Đóng modal khi click bên ngoài
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('audioModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                document.getElementById('audioPlayer').pause();
+            }
+        });
+    </script>
+</body>
+</html>
